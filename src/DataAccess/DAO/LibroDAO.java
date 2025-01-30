@@ -91,9 +91,9 @@ public class LibroDAO extends SQLiteDataHelper implements IDAO <LibroDTO> {
             Connection        conn  = openConnection();
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, entity.getNombreLibro());
-            pstmt.setString(1, entity.getNombreAutor());
-            pstmt.setString(1, entity.getApellidoAutor());
-            pstmt.setString(1, entity.getEditorial());
+            pstmt.setString(2, entity.getNombreAutor());
+            pstmt.setString(3, entity.getApellidoAutor());
+            pstmt.setString(4, entity.getEditorial());
             pstmt.executeUpdate();
             return true;
         } 
@@ -125,4 +125,21 @@ public class LibroDAO extends SQLiteDataHelper implements IDAO <LibroDTO> {
     public boolean delete(Integer id) throws Exception {
             return true;
     }   
+
+    public Integer getMaxRow()  throws Exception  {
+        String query =" SELECT COUNT(*) TotalReg FROM Libro"
+                     +" WHERE   Estado ='A' ";
+        try {
+            Connection conn = openConnection();         // conectar a DB     
+            Statement  stmt = conn.createStatement();   // CRUD : select * ...    
+            ResultSet rs   = stmt.executeQuery(query);  // ejecutar la
+            while (rs.next()) {
+                return rs.getInt(1);                    // TotalReg
+            }
+        } 
+        catch (SQLException e) {
+            throw e; 
+        }
+        return 0;
+    }
 }

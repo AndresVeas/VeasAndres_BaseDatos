@@ -4,17 +4,14 @@
 |  Use is subject to license terms.     andres.veas  |
 \---------------------------------------------------*/
 
-import BusinessLogic.BLFactory;
-import DataAccess.DAO.LibroDAO;
-import DataAccess.DTO.LibroDTO;
+
+import UserInterface.Form.MainForm;
+import UserInterface.Form.SplashScreenForm;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        
-        BLFactory <LibroDTO> f = new BLFactory<>(LibroDAO :: new);
 
-        for (LibroDTO a : f.getAll()) {
-            System.out.println(a);
-        }
+       //SplashScreenForm.show();
+       MainForm frmMain = new MainForm("PoliBiblio");
     }
 }
