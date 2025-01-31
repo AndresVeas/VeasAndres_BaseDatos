@@ -14,7 +14,7 @@ public class MainPanel extends JPanel{
     private void customizeComponent() {
         try {
             ImageIcon imageIcon = new ImageIcon(IAStyle.URL_MAIN);
-            add(new JLabel(imageIcon),BorderLayout.CENTER);
+            add(new JLabel(imageIcon),BorderLayout.WEST);
         } catch (Exception e) {
             e.printStackTrace();
         }

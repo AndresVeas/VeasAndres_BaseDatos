@@ -16,23 +16,22 @@ import UserInterface.CustomerControl.PatButton;
 public class MenuPanel extends JPanel {
     public  PatButton   
             btnHome         = new PatButton("Home"),
-            btnUsuario     = new PatButton("Usuarios"),
-            btnLibro       = new PatButton("Libros"),
-            btnPrestamo    = new PatButton("Prestamos"),
-            btnTest         = new PatButton("btnTest");
+            btnUsuario      = new PatButton("Usuarios"),
+            btnLibro        = new PatButton("Libros"),
+            btnPrestamo     = new PatButton("Prestamos");
 
-    public MenuPanel(){
+            public MenuPanel(){
         customizeComponent();
     }
 
     private void customizeComponent() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setPreferredSize(new Dimension(250, getHeight())); 
+        setPreferredSize(new Dimension(150, getHeight())); 
 
         // add-logo
         try {
             Image logo = ImageIO.read(IAStyle.URL_LOGO);
-            logo = logo.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+            logo = logo.getScaledInstance(70, 80, Image.SCALE_SMOOTH);
             add(new JLabel(new ImageIcon(logo)));
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,7 +42,6 @@ public class MenuPanel extends JPanel {
         add(btnUsuario);
         add(btnLibro);
         add(btnPrestamo);
-        add(btnTest);
 
         // add-copyright
         add(new JLabel("\u00A9 2025 Grupo 6"));

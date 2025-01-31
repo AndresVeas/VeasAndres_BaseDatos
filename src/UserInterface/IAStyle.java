@@ -17,9 +17,9 @@ public abstract class IAStyle {
     public static final Color COLOR_FONT_DARK = new Color(50, 50, 50); // Gris más oscuro
     public static final Color COLOR_CURSOR = Color.black;
     public static final Color COLOR_BORDER = Color.lightGray;
-    public static final Font  FONT         = new Font("JetBrains Mono", Font.PLAIN, 14);
+    public static final Font  FONT         = new Font("JetBrains Mono", Font.PLAIN, 15);
     public static final Font  FONT_BOLD    = new Font("JetBrains Mono", Font.BOLD | Font.PLAIN, 14);
-    public static final Font  FONT_SMALL   = new Font("JetBrains Mono", Font.PLAIN| Font.PLAIN, 10);
+    public static final Font  FONT_SMALL   = new Font("JetBrains Mono", Font.PLAIN| Font.PLAIN, 12);
 
     public static final int ALIGNMENT_LEFT  = SwingConstants.LEFT;
     public static final int ALIGNMENT_RIGHT = SwingConstants.RIGHT;

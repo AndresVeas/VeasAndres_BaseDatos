@@ -23,7 +23,7 @@ public class PatButton  extends JButton implements MouseListener {
 
     public void customizeComponent(String text, String iconPath){ 
         
-        setSize(20, 70);
+        setSize(30, 70);
         addMouseListener(this);
         customizeComponent(text);
         setBounds(50, 30, 90, 20); 

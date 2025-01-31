@@ -20,6 +20,7 @@ public class UsuarioDAO extends SQLiteDataHelper implements IDAO <UsuarioDTO> {
         UsuarioDTO dto = new UsuarioDTO();
         String query =" SELECT IdUsuario     " 
                      +"       ,Nombre               " 
+                     +"       ,Apellido             " 
                      +"       ,Estado               " 
                      +"       ,FechaCreacion        " 
                      +"       ,FechaModificacion    " 
@@ -77,11 +78,12 @@ public class UsuarioDAO extends SQLiteDataHelper implements IDAO <UsuarioDTO> {
 
     @Override
     public boolean create(UsuarioDTO entity) throws Exception {
-        String query = " INSERT INTO Usuario (Nombre) VALUES (?)";
+        String query = " INSERT INTO Usuario (Nombre,Apellido) VALUES (?,?)";
         try {
             Connection        conn  = openConnection();
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, entity.getNombre());
+            pstmt.setString(2, entity.getApellido());
             pstmt.executeUpdate();
             return true;
         } 
@@ -94,13 +96,14 @@ public class UsuarioDAO extends SQLiteDataHelper implements IDAO <UsuarioDTO> {
     public boolean update(UsuarioDTO entity) throws Exception {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");  
         LocalDateTime now = LocalDateTime.now();
-        String query = " UPDATE Usuario SET Nombre = ?, FechaModifica = ? WHERE IdUsuario = ?";
+        String query = " UPDATE Usuario SET Nombre = ?,Apellido = ?, FechaModificacion = ? WHERE IdUsuario = ?";
         try {
             Connection          conn = openConnection();
             PreparedStatement pstmt  = conn.prepareStatement(query);
             pstmt.setString(1, entity.getNombre());
-            pstmt.setString(2, dtf.format(now).toString());
-            pstmt.setInt(3, entity.getIdUsuario());
+            pstmt.setString(2, entity.getApellido());
+            pstmt.setString(3, dtf.format(now).toString());
+            pstmt.setInt(4, entity.getIdUsuario());
             pstmt.executeUpdate();
             return true;
         } 
@@ -112,5 +115,24 @@ public class UsuarioDAO extends SQLiteDataHelper implements IDAO <UsuarioDTO> {
     @Override
     public boolean delete(Integer id) throws Exception {
             return true;
+    }
+
+
+    
+    public Integer getMaxRow()  throws Exception  {
+        String query =" SELECT COUNT(*) TotalReg FROM Usuario"
+                     +" WHERE   Estado ='A' ";
+        try {
+            Connection conn = openConnection();         // conectar a DB     
+            Statement  stmt = conn.createStatement();   // CRUD : select * ...    
+            ResultSet rs   = stmt.executeQuery(query);  // ejecutar la
+            while (rs.next()) {
+                return rs.getInt(1);                    // TotalReg
+            }
+        } 
+        catch (SQLException e) {
+            throw e; 
+        }
+        return 0;
     }
 }

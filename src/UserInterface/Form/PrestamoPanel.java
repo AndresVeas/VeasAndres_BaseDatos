@@ -2,8 +2,8 @@ package UserInterface.Form;
 
 import javax.swing.*;
 
-import BusinessLogic.LibroBL;
-import DataAccess.DTO.LibroDTO;
+import BusinessLogic.PrestamoBL;
+import DataAccess.DTO.PrestamoDTO;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,13 +18,13 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class LibroPanel extends JPanel implements ActionListener {
-    private LibroDTO libro = null;
-    private LibroBL libroBL = null;
-    private Integer idLibro = 0, idMaxLibro=0;
+public class PrestamoPanel extends JPanel implements ActionListener {
+    private Integer idPrestamo = 0, idMaxPrestamo=0;
+    private PrestamoDTO prestamo = null;
+    private PrestamoBL prestamoBL = null;
     private Integer cantidadPaginas = 0, paginaActual=0, filasPagina = 10;
 
-    public LibroPanel () {
+    public PrestamoPanel () {
         try {
             customizeComponent();
             loadRow();
@@ -40,7 +40,7 @@ public class LibroPanel extends JPanel implements ActionListener {
             btnPageAnt.addActionListener(this);
             btnPageSig.addActionListener(this);
             btnPageFin.addActionListener(this);
-            
+
             btnNuevo.addActionListener   (  e -> btnNuevoClick());
             btnGuardar.addActionListener (  e -> btnGuardarClick());
             btnEliminar.addActionListener(  e -> btnEliminarClick());
@@ -51,48 +51,50 @@ public class LibroPanel extends JPanel implements ActionListener {
     }
 
     private void loadRow() throws Exception {
-        idLibro      = 1;
-        libroBL      = new LibroBL();
-        libro        = libroBL.getByIdLibro(idLibro);
-        idMaxLibro   = libroBL.getMaxRow();
-        cantidadPaginas = (int) Math.ceil((double) libroBL.getAll().size() / filasPagina);
+        idPrestamo      = 1;
+        prestamoBL      = new PrestamoBL();
+        prestamo        = prestamoBL.getByIdPrestamo(idPrestamo);
+        idMaxPrestamo   = prestamoBL.getMaxRow();
+        cantidadPaginas = (int) Math.ceil((double) prestamoBL.getAll().size() / filasPagina);
     }
 
     private void showRow() {
-        boolean libroNull = (libro == null);
-        txtIdLibro.setText((libroNull) ?        "" : libro.getIdLibro().toString());
-        txtNombreLibro.setText((libroNull) ?    "" : libro.getNombreLibro());
-        txtNombreAutor.setText((libroNull) ?    "" : libro.getNombreAutor());
-        txtApellidoAutor.setText((libroNull) ?  "" : libro.getApellidoAutor());
-        txtEditorial.setText((libroNull) ?      "" : libro.getEditorial());
-        lblTotalReg.setText(idLibro.toString() + " de " + idMaxLibro.toString());
+        boolean prestamoNull = (prestamo == null);
+        txtIdPrestamo.setText((prestamoNull) ?     "" : prestamo.getIdPrestamo().toString());
+        txtNombreUsuario.setText((prestamoNull) ?  "" : prestamo.getNombreUsuario());
+        txtApellidoUsuario.setText((prestamoNull) ?"" : prestamo.getApellidoUsuario());
+        txtNombreLibro.setText((prestamoNull) ?    "" : prestamo.getNombreLibro());
+        txtEstadoPrestamo.setText((prestamoNull) ? "" : prestamo.getEstadoPrestamo());
+
+
+        lblTotalReg.setText(idPrestamo.toString() + " de " + idMaxPrestamo.toString());
     }
 
     private void btnNuevoClick() {
-        libro = null;
+        prestamo = null;
         showRow();
     } 
     
     private void btnGuardarClick() {
-        boolean libroNull = (libro == null);
+        boolean prestamoNull = (prestamo == null);
         // String buttonText = ((JButton) e.getSource()).getText();
         try {
-            if (IAStyle.showConfirmYesNo("¿Seguro que desea " + ((libroNull) ? "AGREGAR ?" : "ACTUALIZAR ?"))){
+            if (IAStyle.showConfirmYesNo("¿Seguro que desea " + ((prestamoNull) ? "AGREGAR ?" : "ACTUALIZAR ?"))){
             
-                if (libroNull){
-                    libro = new LibroDTO();
-                    libro.setNombreLibro(txtNombreLibro.getText());
-                    libro.setNombreAutor(txtNombreAutor.getText());
-                    libro.setApellidoAutor(txtApellidoAutor.getText());
-                    libro.setEditorial(txtEditorial.getText());
-                }                    
+                if (prestamoNull){
+                    prestamo = new PrestamoDTO();
+                    prestamo.setNombreUsuario(txtNombreUsuario.getText());
+                    prestamo.setApellidoUsuario(txtApellidoUsuario.getText());
+                    prestamo.setNombreLibro(txtNombreLibro.getText());
+                    prestamo.setEstadoPrestamo(txtEstadoPrestamo.getText());
+                }
                 else
-                    libro.setNombreLibro(txtNombreLibro.getText());
-                    libro.setNombreAutor(txtNombreAutor.getText());
-                    libro.setApellidoAutor(txtApellidoAutor.getText());
-                    libro.setEditorial(txtEditorial.getText());
+                    prestamo.setNombreUsuario(txtNombreUsuario.getText());
+                    prestamo.setApellidoUsuario(txtApellidoUsuario.getText());
+                    prestamo.setNombreLibro(txtNombreLibro.getText());
+                    prestamo.setEstadoPrestamo(txtEstadoPrestamo.getText());
     
-                if(!((libroNull) ? libroBL.create(libro) : libroBL.update(libro)))
+                if(!((prestamoNull) ? prestamoBL.create(prestamo) : prestamoBL.update(prestamo)))
                     IAStyle.showMsgError("Error al guardar...!");
     
                 loadRow();
@@ -108,7 +110,7 @@ public class LibroPanel extends JPanel implements ActionListener {
         try {
             if (IAStyle.showConfirmYesNo("Seguro que desea Eliminar?")) {
 
-                if (!libroBL.delete(libro.getIdLibro()))
+                if (!prestamoBL.delete(prestamo.getIdPrestamo()))
                     throw new Exception("Error al eliminar...!");
     
                 loadRow();
@@ -122,7 +124,7 @@ public class LibroPanel extends JPanel implements ActionListener {
 
     private void btnCancelarClick() {
         try {
-            if(libro == null)
+            if(prestamo == null)
                 loadRow();
             showRow();
         } catch (Exception e) {}
@@ -131,13 +133,13 @@ public class LibroPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnRowIni)
-            idLibro = 1;
-        if (e.getSource() == btnRowAnt && (idLibro > 1))
-            idLibro--;
-        if (e.getSource() == btnRowSig && (idLibro < idMaxLibro))
-            idLibro++;
+            idPrestamo = 1;
+        if (e.getSource() == btnRowAnt && (idPrestamo > 1))
+            idPrestamo--;
+        if (e.getSource() == btnRowSig && (idPrestamo < idMaxPrestamo))
+            idPrestamo++;
         if (e.getSource() == btnRowFin)
-            idLibro = idMaxLibro;
+            idPrestamo = idMaxPrestamo;
     
         if (e.getSource() == btnPageIni)
             paginaActual = 0;
@@ -148,7 +150,7 @@ public class LibroPanel extends JPanel implements ActionListener {
         if (e.getSource() == btnPageFin && cantidadPaginas > 0)
             paginaActual = cantidadPaginas - 1;
         try {
-            libro = libroBL.getByIdLibro(idLibro);  
+            prestamo = prestamoBL.getByIdPrestamo(idPrestamo);  
             showRow();
             showTable();
         } catch (Exception ex) {
@@ -158,23 +160,20 @@ public class LibroPanel extends JPanel implements ActionListener {
 
     private void showTable() throws Exception {
         lblTotalPag.setText((paginaActual + 1) + " de " + cantidadPaginas);
-        
-        List<LibroDTO> allLibro = libroBL.getAll();
-        String[] header = {"Id", "Nombre Libro","Nombre Autor","Apellido Autor","Editorial", "Estado"};
+
+        List<PrestamoDTO> allPrestamo = prestamoBL.getAll();
+        String[] header = {"Id", "Nombre Usuario","Apellido Usuario","Libro","EstadoPrestamo"};
         Object[][] data = new Object[filasPagina][header.length];
-        int index = 0, inicio = paginaActual * filasPagina, end = Math.min(inicio + filasPagina, allLibro.size());
-        
+        int index = 0, inicio = paginaActual * filasPagina, end = Math.min(inicio + filasPagina, allPrestamo.size());
         for (int i = inicio; i < end; i++) {
-            LibroDTO l = allLibro.get(i);
-            data[index][0] = l.getIdLibro();
-            data[index][1] = l.getNombreLibro();
-            data[index][2] = l.getNombreAutor();
-            data[index][3] = l.getApellidoAutor();
-            data[index][4] = l.getEditorial();
-            data[index][5] = l.getEstado();
+            PrestamoDTO p = allPrestamo.get(i);
+            data[index][0] = p.getIdPrestamo();
+            data[index][1] = p.getNombreUsuario();
+            data[index][2] = p.getApellidoUsuario();
+            data[index][3] = p.getNombreLibro();
+            data[index][4] = p.getEstadoPrestamo();
             index++;
         }
-
 
         JTable table = new JTable(data, header);
         table.setShowHorizontalLines(true);
@@ -186,11 +185,10 @@ public class LibroPanel extends JPanel implements ActionListener {
         table.setFillsViewportHeight(true);
 
         table.getColumnModel().getColumn(0).setPreferredWidth(50);  // Código
-        table.getColumnModel().getColumn(1).setPreferredWidth(200); // Nombre Libro
+        table.getColumnModel().getColumn(1).setPreferredWidth(200); // Nombre Prestamo
         table.getColumnModel().getColumn(2).setPreferredWidth(100); // Autor
         table.getColumnModel().getColumn(3).setPreferredWidth(150); // Editorial
         table.getColumnModel().getColumn(4).setPreferredWidth(200); // Editorial
-        table.getColumnModel().getColumn(5).setPreferredWidth(50); // Editorial
 
 
         pnlTabla.removeAll();
@@ -202,38 +200,40 @@ public class LibroPanel extends JPanel implements ActionListener {
                 int row = table.rowAtPoint(e.getPoint());
                 int col = table.columnAtPoint(e.getPoint());
                 if (row >= 0 && col >= 0) {
-                    String strIdLibro = table.getModel().getValueAt(row, 0).toString();
-                    idLibro = Integer.parseInt(strIdLibro);
+                    String strIdPrestamo = table.getModel().getValueAt(row, 0).toString();
+                    idPrestamo = Integer.parseInt(strIdPrestamo);
                     try {
-                        libro = libroBL.getByIdLibro(idLibro);
+                        prestamo = prestamoBL.getByIdPrestamo(idPrestamo);
                         showRow();
                     } catch (Exception ignored) {
                     }
-                    System.out.println("Tabla.Selected: " + strIdLibro);
+                    System.out.println("Tabla.Selected: " + strIdPrestamo);
                 }
             }
         });
 
         
     }
+
 /************************
  * FormDesing : Grupo6
  ************************/ 
     private PatLabel 
-            lblTitulo           = new PatLabel("LIBROS"),
-            lblIdLibro          = new PatLabel("Codigo         : "),
-            lblNombreLibro      = new PatLabel("Nombre Libro   : "),
-            lblNombreAutor      = new PatLabel("Nombre Autor   : "),
-            lblApellidoAutor    = new PatLabel("Apellido Autor : "),
-            lblEditorial        = new PatLabel("Editorial      : "),
+            lblTitulo           = new PatLabel("PRESTAMO"),
+            lblIdPrestamo       = new PatLabel("Codigo           : "),
+            lblNombreUsuario    = new PatLabel("Nombre Usuario   : "),
+            lblApellidoUsuario  = new PatLabel("Apellido Usuario : "),
+            lblNombreLibro      = new PatLabel("Nombre Libro     : "),
+            lblEstadoPrestamo   = new PatLabel("Estado Prestamo  : "),
             lblTotalReg         = new PatLabel(" 0 de 0 "),
             lblTotalPag         = new PatLabel(" 0 ");
     private PatTextBox 
-            txtIdLibro          = new PatTextBox(),
-            txtNombreLibro      = new PatTextBox(),
-            txtNombreAutor      = new PatTextBox(),
-            txtApellidoAutor    = new PatTextBox(),
-            txtEditorial        = new PatTextBox();
+            txtIdPrestamo        = new PatTextBox(),
+            txtNombreUsuario     = new PatTextBox(),
+            txtApellidoUsuario   = new PatTextBox(),
+            txtNombreLibro       = new PatTextBox(),
+            txtEstadoPrestamo    = new PatTextBox();
+
     private PatButton 
             btnPageIni  = new PatButton(" |< "),
             btnPageAnt  = new PatButton(" << "),
@@ -259,12 +259,12 @@ public class LibroPanel extends JPanel implements ActionListener {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         
-        txtIdLibro.setEnabled(false);
-        txtIdLibro.setBorderLine();
+        txtIdPrestamo.setEnabled(false);
+        txtIdPrestamo.setBorderLine();
+        txtNombreUsuario.setBorderLine();   
+        txtApellidoUsuario.setBorderLine();
         txtNombreLibro.setBorderLine();
-        txtNombreAutor.setBorderLine();  
-        txtApellidoAutor.setBorderLine();
-        txtEditorial.setBorderLine();    
+        txtEstadoPrestamo.setBorderLine();
         
         pnlBtnPage.add(btnPageIni);
         pnlBtnPage.add(btnPageAnt);
@@ -334,48 +334,48 @@ public class LibroPanel extends JPanel implements ActionListener {
         gbc.gridy = 5;
         gbc.gridx = 0;
         gbc.insets = new Insets(5, 0, 5, 0); 
-        add(lblIdLibro, gbc);
+        add(lblIdPrestamo, gbc);
         gbc.gridy = 5;
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 1; 
-        add(txtIdLibro, gbc);
+        add(txtIdPrestamo, gbc);
 
         gbc.gridy = 6;
+        gbc.gridx = 0;
+        gbc.insets = new Insets(5, 0, 5, 0); 
+        add(lblNombreUsuario, gbc);
+        gbc.gridy = 6;
+        gbc.gridx = 1;
+        add(txtNombreUsuario, gbc);
+
+        gbc.gridy = 7;
+        gbc.gridx = 0;
+        gbc.insets = new Insets(5, 0, 5, 0); 
+        add(lblApellidoUsuario, gbc);
+        gbc.gridy = 7;
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth = 1; 
+        add(txtApellidoUsuario, gbc);
+
+        gbc.gridy = 8;
         gbc.gridx = 0;
         gbc.insets = new Insets(5, 0, 5, 0); 
         add(lblNombreLibro, gbc);
-        gbc.gridy = 6;
+        gbc.gridy = 8;
         gbc.gridx = 1;
         add(txtNombreLibro, gbc);
 
-        gbc.gridy = 7;
-        gbc.gridx = 0;
-        gbc.insets = new Insets(5, 0, 5, 0); 
-        add(lblNombreAutor, gbc);
-        gbc.gridy = 7;
-        gbc.gridx = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridwidth = 1; 
-        add(txtNombreAutor, gbc);
-
-        gbc.gridy = 8;
-        gbc.gridx = 0;
-        gbc.insets = new Insets(5, 0, 5, 0); 
-        add(lblApellidoAutor, gbc);
-        gbc.gridy = 8;
-        gbc.gridx = 1;
-        add(txtApellidoAutor, gbc);
-
         gbc.gridy = 9;
         gbc.gridx = 0;
         gbc.insets = new Insets(5, 0, 5, 0); 
-        add(lblEditorial, gbc);
+        add(lblEstadoPrestamo, gbc);
         gbc.gridy = 9;
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 1; 
-        add(txtEditorial, gbc);
+        add(txtEstadoPrestamo, gbc);
 
         gbc.gridy = 10;
         gbc.gridx = 0;

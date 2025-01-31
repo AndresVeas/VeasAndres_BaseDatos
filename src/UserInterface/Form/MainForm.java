@@ -6,8 +6,6 @@ import java.awt.Container;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import UserInterface.IAStyle;
-
 public class MainForm extends JFrame{
     MenuPanel  pnlMenu = new MenuPanel();
     JPanel     pnlMain = new MainPanel();
@@ -15,11 +13,10 @@ public class MainForm extends JFrame{
     public MainForm(String tilteApp) {
         customizeComponent(tilteApp);
         pnlMenu.btnHome.addActionListener       ( e -> setPanel(new MainPanel())); 
-        //pnlMenu.btnUsuario.addActionListener    ( e -> setPanel(new UsuarioPanel())); 
+        pnlMenu.btnUsuario.addActionListener    ( e -> setPanel(new UsuarioPanel())); 
         pnlMenu.btnLibro.addActionListener      ( e -> setPanel(new LibroPanel()));  
-        //pnlMenu.btnPrestamo.addActionListener   ( e -> setPanel(new PrestamoPanel())); 
+        pnlMenu.btnPrestamo.addActionListener   ( e -> setPanel(new PrestamoPanel())); 
         //agregar
-        pnlMenu.btnTest.addActionListener       ( e -> { IAStyle.showMsgError("mensaje de error");}); 
     }
 
     private void setPanel(JPanel formularioPanel) {

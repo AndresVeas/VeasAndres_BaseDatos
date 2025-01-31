@@ -127,6 +127,8 @@ public class LibroDAO extends SQLiteDataHelper implements IDAO <LibroDTO> {
     }   
 
     public Integer getMaxRow()  throws Exception  {
+
+
         String query =" SELECT COUNT(*) TotalReg FROM Libro"
                      +" WHERE   Estado ='A' ";
         try {
