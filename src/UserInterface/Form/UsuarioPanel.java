@@ -1,23 +1,18 @@
 package UserInterface.Form;
 
-import javax.swing.*;
-
 import BusinessLogic.UsuarioBL;
-import DataAccess.DTO.PrestamoDTO;
 import DataAccess.DTO.UsuarioDTO;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
-
-import UserInterface.IAStyle;
 import UserInterface.CustomerControl.PatButton;
 import UserInterface.CustomerControl.PatLabel;
 import UserInterface.CustomerControl.PatTextBox;
-
+import UserInterface.IAStyle;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
+import javax.swing.*;
 
 public class UsuarioPanel extends JPanel implements ActionListener {
     private Integer idUsuario = 0, idMaxUsuario=0;

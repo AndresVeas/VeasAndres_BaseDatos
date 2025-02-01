@@ -1,19 +1,19 @@
 package BusinessLogic;
 
-import java.util.List;
-
 import DataAccess.DAO.UsuarioDAO;
 import DataAccess.DTO.UsuarioDTO;
+import java.util.List;
 
 public class UsuarioBL {
     private UsuarioDTO usuario;       // cache
-    private UsuarioDAO uDAO = new UsuarioDAO();
-
-    public UsuarioBL(){}
-
-    public List<UsuarioDTO> getAll() throws Exception{
-        return uDAO.readAll();
+    private static UsuarioDAO uDAO = new UsuarioDAO();
+    
+        public UsuarioBL(){}
+    
+        public static List<UsuarioDTO> getAll() throws Exception{
+            return uDAO.readAll();
     }
+
     public UsuarioDTO getByIdUsuario(int idUsuario) throws Exception{
         usuario = uDAO.readBy(idUsuario);
         return usuario;

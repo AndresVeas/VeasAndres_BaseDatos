@@ -99,4 +99,10 @@ public class PrestamoDTO {
             + "\n EstadoPrestamo:   " + getEstadoPrestamo()
             + "\n FechaDevolucion:  " + getFechaDevolucion();
     }
+
+
+    public void setNombreUsuario(Integer idUsuario) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setNombreUsuario'");
+    }
 }
