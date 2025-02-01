@@ -25,4 +25,5 @@ public class App {
        MainForm frmMain = new MainForm("PoliBiblio -------GRUPO 6");
        frmMain.setVisible(true); 
     } 
+
 }
