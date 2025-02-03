@@ -4,10 +4,11 @@ import javax.swing.*;
 
 import BusinessLogic.LibroBL;
 import DataAccess.DTO.LibroDTO;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import UserInterface.IAStyle;
 import UserInterface.CustomerControl.PatButton;
@@ -19,14 +20,17 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class LibroPanel extends JPanel implements ActionListener {
+    private Integer idLibro = 0, idMaxLibro=0;
     private LibroDTO libro = null;
     private LibroBL libroBL = null;
-    private Integer idLibro = 0, idMaxLibro=0;
     private Integer cantidadPaginas = 0, paginaActual=0, filasPagina = 10;
+    private String [] Estados;
+    private JComboBox<String> cmbEstado = new JComboBox<>();
 
     public LibroPanel () {
         try {
             customizeComponent();
+            CargarEstados();
             loadRow();
             showRow();
             showTable();
@@ -55,7 +59,8 @@ public class LibroPanel extends JPanel implements ActionListener {
         libroBL      = new LibroBL();
         libro        = libroBL.getByIdLibro(idLibro);
         idMaxLibro   = libroBL.getMaxRow();
-        cantidadPaginas = (int) Math.ceil((double) libroBL.getAll().size() / filasPagina);
+        cmbEstado.setSelectedIndex(loadEstado());
+        cantidadPaginas = (int) Math.ceil((double) LibroBL.getAll().size() / filasPagina);
     }
 
     private void showRow() {
@@ -65,17 +70,18 @@ public class LibroPanel extends JPanel implements ActionListener {
         txtNombreAutor.setText((libroNull) ?    "" : libro.getNombreAutor());
         txtApellidoAutor.setText((libroNull) ?  "" : libro.getApellidoAutor());
         txtEditorial.setText((libroNull) ?      "" : libro.getEditorial());
+        cmbEstado.setVisible(true);
         lblTotalReg.setText(idLibro.toString() + " de " + idMaxLibro.toString());
     }
 
     private void btnNuevoClick() {
         libro = null;
+        cmbEstado.setSelectedIndex(0);
         showRow();
     } 
     
     private void btnGuardarClick() {
         boolean libroNull = (libro == null);
-        // String buttonText = ((JButton) e.getSource()).getText();
         try {
             if (IAStyle.showConfirmYesNo("¿Seguro que desea " + ((libroNull) ? "AGREGAR ?" : "ACTUALIZAR ?"))){
             
@@ -85,12 +91,14 @@ public class LibroPanel extends JPanel implements ActionListener {
                     libro.setNombreAutor(txtNombreAutor.getText());
                     libro.setApellidoAutor(txtApellidoAutor.getText());
                     libro.setEditorial(txtEditorial.getText());
+                    libro.setEstado(cmbEstado.getSelectedItem().toString());
                 }                    
                 else
                     libro.setNombreLibro(txtNombreLibro.getText());
                     libro.setNombreAutor(txtNombreAutor.getText());
                     libro.setApellidoAutor(txtApellidoAutor.getText());
                     libro.setEditorial(txtEditorial.getText());
+                    libro.setEstado(cmbEstado.getSelectedItem().toString());
     
                 if(!((libroNull) ? libroBL.create(libro) : libroBL.update(libro)))
                     IAStyle.showMsgError("Error al guardar...!");
@@ -148,7 +156,8 @@ public class LibroPanel extends JPanel implements ActionListener {
         if (e.getSource() == btnPageFin && cantidadPaginas > 0)
             paginaActual = cantidadPaginas - 1;
         try {
-            libro = libroBL.getByIdLibro(idLibro);  
+            libro = libroBL.getByIdLibro(idLibro);
+            cmbEstado.setSelectedIndex(loadEstado());
             showRow();
             showTable();
         } catch (Exception ex) {
@@ -159,7 +168,7 @@ public class LibroPanel extends JPanel implements ActionListener {
     private void showTable() throws Exception {
         lblTotalPag.setText((paginaActual + 1) + " de " + cantidadPaginas);
         
-        List<LibroDTO> allLibro = libroBL.getAll();
+        List<LibroDTO> allLibro = LibroBL.getAll();
         String[] header = {"Id", "Nombre Libro","Nombre Autor","Apellido Autor","Editorial", "Estado"};
         Object[][] data = new Object[filasPagina][header.length];
         int index = 0, inicio = paginaActual * filasPagina, end = Math.min(inicio + filasPagina, allLibro.size());
@@ -172,6 +181,7 @@ public class LibroPanel extends JPanel implements ActionListener {
             data[index][3] = l.getApellidoAutor();
             data[index][4] = l.getEditorial();
             data[index][5] = l.getEstado();
+
             index++;
         }
 
@@ -216,6 +226,30 @@ public class LibroPanel extends JPanel implements ActionListener {
 
         
     }
+
+    private void CargarEstados () throws Exception {
+        List<LibroDTO> libros = LibroBL.getAll(); 
+        Set<String> estadosUnicos = new HashSet<>(); 
+
+        for (LibroDTO libro : libros) {
+            estadosUnicos.add(libro.getEstado());
+        }
+        Estados = estadosUnicos.toArray(new String[0]); 
+        cmbEstado.removeAllItems();
+        for (String estado : Estados) {
+            cmbEstado.addItem(estado);
+        }
+    }
+
+    private int loadEstado (){
+        for (int i = 0; i < Estados.length; i++) {
+            if (libro.getEstado().equals(Estados[i])){
+                return i;
+            }
+        }
+        return 0;
+    }
+
 /************************
  * FormDesing : Grupo6
  ************************/ 
@@ -226,6 +260,7 @@ public class LibroPanel extends JPanel implements ActionListener {
             lblNombreAutor      = new PatLabel("Nombre Autor   : "),
             lblApellidoAutor    = new PatLabel("Apellido Autor : "),
             lblEditorial        = new PatLabel("Editorial      : "),
+            lblEstado        = new PatLabel("Estado      : "),
             lblTotalReg         = new PatLabel(" 0 de 0 "),
             lblTotalPag         = new PatLabel(" 0 ");
     private PatTextBox 
@@ -259,8 +294,11 @@ public class LibroPanel extends JPanel implements ActionListener {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         
+        txtIdLibro.setEditable(false);   
+        txtIdLibro.setDisabledTextColor(txtIdLibro.getForeground());
         txtIdLibro.setEnabled(false);
         txtIdLibro.setBorderLine();
+
         txtNombreLibro.setBorderLine();
         txtNombreAutor.setBorderLine();  
         txtApellidoAutor.setBorderLine();
@@ -376,8 +414,18 @@ public class LibroPanel extends JPanel implements ActionListener {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 1; 
         add(txtEditorial, gbc);
-
+        
         gbc.gridy = 10;
+        gbc.gridx = 0;
+        gbc.insets = new Insets(5, 0, 5, 0);
+        add(lblEstado, gbc);
+        gbc.gridy = 10;
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth = 1;
+        add(cmbEstado, gbc); 
+
+        gbc.gridy = 11;
         gbc.gridx = 0;
         gbc.gridwidth = 3;
         gbc.insets = new Insets(30, 0, 0, 0);

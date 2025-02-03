@@ -12,11 +12,12 @@ public class LibroDTO {
   
     public LibroDTO() {}
 
-    public LibroDTO(String nombreLibro, String nombreAutor, String apellidoAutor, String editorial) {
+    public LibroDTO(String nombreLibro, String nombreAutor, String apellidoAutor, String editorial,String estado) {
         NombreLibro = nombreLibro;
         NombreAutor = nombreAutor;
         ApellidoAutor = apellidoAutor;
         Editorial = editorial;
+        Estado = estado;
     }
 
     public LibroDTO(Integer idLibro, String nombreLibro, String nombreAutor, String apellidoAutor, String editorial,

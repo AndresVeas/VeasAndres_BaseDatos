@@ -8,10 +8,10 @@ public class UsuarioBL {
     private UsuarioDTO usuario;       // cache
     private static UsuarioDAO uDAO = new UsuarioDAO();
     
-        public UsuarioBL(){}
+    public UsuarioBL(){}
     
-        public static List<UsuarioDTO> getAll() throws Exception{
-            return uDAO.readAll();
+    public static List<UsuarioDTO> getAll() throws Exception{
+        return uDAO.readAll();
     }
 
     public UsuarioDTO getByIdUsuario(int idUsuario) throws Exception{

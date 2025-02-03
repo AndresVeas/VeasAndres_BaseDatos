@@ -1,7 +1,13 @@
 package UserInterface.Form;
 
+import BusinessLogic.EstadoPrestamoBL;
+import BusinessLogic.LibroBL;
 import BusinessLogic.PrestamoBL;
+import BusinessLogic.UsuarioBL;
+import DataAccess.DTO.EstadoPrestamoDTO;
+import DataAccess.DTO.LibroDTO;
 import DataAccess.DTO.PrestamoDTO;
+import DataAccess.DTO.UsuarioDTO;
 import UserInterface.CustomerControl.PatButton;
 import UserInterface.CustomerControl.PatLabel;
 import UserInterface.CustomerControl.PatTextBox;
@@ -11,19 +17,32 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.*;
 
 public class PrestamoPanel extends JPanel implements ActionListener {
     private Integer idPrestamo = 0, idMaxPrestamo=0;
     private PrestamoDTO prestamo = null;
     private PrestamoBL prestamoBL = null;
+
     private Integer cantidadPaginas = 0, paginaActual=0, filasPagina = 10;
-    private JComboBox<String> cmbEstadoPrestamo = new JComboBox<>(new String[]{"Prestado", "Perdido", "Devuelto"});
+    private String [] Estados;
+    private String [] NombreApellido;
+    private String [] NombreLibro;
+    private JComboBox<String> cmbEstadoPrestamo = new JComboBox<>();
+    private JComboBox<String> cmbNombreApellido = new JComboBox<>();
+    private JComboBox<String> cmbLibro = new JComboBox<>();
 
     public PrestamoPanel () {
         try {
             customizeComponent();
+            CargarEstados();
+            CargarNombreApellido();
+            CargarLibro();
+
             loadRow();
             showRow();
             showTable();
@@ -52,41 +71,29 @@ public class PrestamoPanel extends JPanel implements ActionListener {
         prestamoBL      = new PrestamoBL();
         prestamo        = prestamoBL.getByIdPrestamo(idPrestamo);
         idMaxPrestamo   = prestamoBL.getMaxRow();
-        cantidadPaginas = (int) Math.ceil((double) prestamoBL.getAll().size() / filasPagina);
+
+        cmbNombreApellido.setSelectedIndex(getIndex(NombreApellido,prestamo.getNombreUsuario() + " " + prestamo.getApellidoUsuario()));
+        cmbLibro.setSelectedIndex(getIndex(NombreLibro,prestamo.getNombreLibro()));
+        cmbEstadoPrestamo.setSelectedIndex(getIndex(Estados,prestamo.getEstadoPrestamo()));
+
+        cantidadPaginas = (int) Math.ceil((double) PrestamoBL.getAll().size() / filasPagina);
     }
 
     private void showRow() {
         boolean prestamoNull = (prestamo == null);
         txtIdPrestamo.setText((prestamoNull) ? "" : prestamo.getIdPrestamo().toString());
-        txtNombreUsuario.setText((prestamoNull) ? "" : prestamo.getNombreUsuario());
-        txtApellidoUsuario.setText((prestamoNull) ? "" : prestamo.getApellidoUsuario());
-        txtNombreLibro.setText((prestamoNull) ? "" : prestamo.getNombreLibro());
-        txtEstadoPrestamo.setText((prestamoNull)? "": prestamo.getEstadoPrestamo());
-    
-        if (prestamoNull) {
-            // Si es un nuevo préstamo, mostrar el JComboBox y ocultar el campo de texto
-            cmbEstadoPrestamo.setVisible(true);
-            txtEstadoPrestamo.setVisible(false); // Si aún tienes este campo, ocúltalo
-            cmbEstadoPrestamo.setSelectedIndex(0); // Selecciona la primera opción por defecto
-        } else {
-            // Si es un préstamo existente, mostrar el campo de texto y ocultar el JComboBox
-            txtEstadoPrestamo.setVisible(true); // Si aún tienes este campo, muéstralo
-            cmbEstadoPrestamo.setVisible(false);
-        }
-    
+
         lblTotalReg.setText(idPrestamo.toString() + " de " + idMaxPrestamo.toString());
     }
 
     private void btnNuevoClick() {
-        prestamo = null; // Reiniciar el objeto préstamo
-        showRow(); // Mostrar los campos vacíos
-    
-        // Mostrar el JComboBox y ocultar el campo de texto (si lo hay)
-        cmbEstadoPrestamo.setVisible(true);
-        txtEstadoPrestamo.setVisible(false); // Si aún tienes este campo, ocúltalo
-    
-        // Establecer el valor predeterminado del JComboBox
-        cmbEstadoPrestamo.setSelectedIndex(0); // Selecciona la primera opción por defecto
+        prestamo = null;
+        
+        cmbNombreApellido.setSelectedIndex(-1);
+        cmbLibro.setSelectedIndex(-1);
+        cmbEstadoPrestamo.setSelectedIndex(-1);
+
+        showRow(); 
     }
     
     private void btnGuardarClick() {
@@ -96,16 +103,9 @@ public class PrestamoPanel extends JPanel implements ActionListener {
                 if (prestamoNull) {
                     prestamo = new PrestamoDTO();
                 }
-                prestamo.setNombreUsuario(txtNombreUsuario.getText());
-                prestamo.setApellidoUsuario(txtApellidoUsuario.getText());
-                prestamo.setNombreLibro(txtNombreLibro.getText());
-    
-                // Obtener el estado del préstamo desde el JComboBox si está visible
-                if (cmbEstadoPrestamo.isVisible()) {
-                    prestamo.setEstadoPrestamo((String) cmbEstadoPrestamo.getSelectedItem());
-                } else {
-                    prestamo.setEstadoPrestamo(txtEstadoPrestamo.getText()); // Si aún tienes este campo
-                }
+                prestamo.setIdUsuario(cmbNombreApellido.getSelectedIndex()+1);
+                prestamo.setIdLibro(cmbLibro.getSelectedIndex()+1);
+                prestamo.setIdEstadoPrestamo(cmbEstadoPrestamo.getSelectedIndex()+1);
     
                 if (!((prestamoNull) ? prestamoBL.create(prestamo) : prestamoBL.update(prestamo))) {
                     IAStyle.showMsgError("Error al guardar...!");
@@ -139,13 +139,9 @@ public class PrestamoPanel extends JPanel implements ActionListener {
     private void btnCancelarClick() {
         try {
             if (prestamo == null) {
-                loadRow(); // Cargar la fila actual
+                loadRow(); 
             }
-            showRow(); // Mostrar los datos actuales
-    
-            // Ocultar el JComboBox y mostrar el campo de texto (si lo hay)
-            cmbEstadoPrestamo.setVisible(false);
-            txtEstadoPrestamo.setVisible(true); // Si aún tienes este campo, muéstralo
+            showRow(); 
         } catch (Exception e) {
             IAStyle.showMsgError(e.getMessage());
         }
@@ -154,11 +150,11 @@ public class PrestamoPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnRowIni)
-            idPrestamo = 1;
+            idPrestamo  = 1;
         if (e.getSource() == btnRowAnt && (idPrestamo > 1))
-            idPrestamo--;
+            idPrestamo  --;
         if (e.getSource() == btnRowSig && (idPrestamo < idMaxPrestamo))
-            idPrestamo++;
+            idPrestamo  ++;
         if (e.getSource() == btnRowFin)
             idPrestamo = idMaxPrestamo;
     
@@ -171,7 +167,10 @@ public class PrestamoPanel extends JPanel implements ActionListener {
         if (e.getSource() == btnPageFin && cantidadPaginas > 0)
             paginaActual = cantidadPaginas - 1;
         try {
-            prestamo = prestamoBL.getByIdPrestamo(idPrestamo);  
+            prestamo = prestamoBL.getByIdPrestamo(idPrestamo);
+            cmbNombreApellido.setSelectedIndex(getIndex(NombreApellido,prestamo.getNombreUsuario() + " " + prestamo.getApellidoUsuario()));
+            cmbLibro.setSelectedIndex(getIndex(NombreLibro,prestamo.getNombreLibro()));
+            cmbEstadoPrestamo.setSelectedIndex(getIndex(Estados,prestamo.getEstadoPrestamo()));
             showRow();
             showTable();
         } catch (Exception ex) {
@@ -179,11 +178,20 @@ public class PrestamoPanel extends JPanel implements ActionListener {
         }
     }
 
+    private int getIndex (String [] Array, String Valor){
+        for (int i = 0; i < Array.length; i++) {
+            if (Array[i].equals(Valor)){
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private void showTable() throws Exception {
         lblTotalPag.setText((paginaActual + 1) + " de " + cantidadPaginas);
 
-        List<PrestamoDTO> allPrestamo = prestamoBL.getAll();
-        String[] header = {"Id", "Nombre Usuario","Apellido Usuario","Libro","EstadoPrestamo"};
+        List<PrestamoDTO> allPrestamo = PrestamoBL.getAll();
+        String[] header = {"Id", "Nombre Usuario","Apellido Usuario","Libro","Fecha Prestamo","EstadoPrestamo"};
         Object[][] data = new Object[filasPagina][header.length];
         int index = 0, inicio = paginaActual * filasPagina, end = Math.min(inicio + filasPagina, allPrestamo.size());
         for (int i = inicio; i < end; i++) {
@@ -192,7 +200,8 @@ public class PrestamoPanel extends JPanel implements ActionListener {
             data[index][1] = p.getNombreUsuario();
             data[index][2] = p.getApellidoUsuario();
             data[index][3] = p.getNombreLibro();
-            data[index][4] = p.getEstadoPrestamo();
+            data[index][4] = p.getFechaCreacion();
+            data[index][5] = p.getEstadoPrestamo();
             index++;
         }
 
@@ -206,10 +215,11 @@ public class PrestamoPanel extends JPanel implements ActionListener {
         table.setFillsViewportHeight(true);
 
         table.getColumnModel().getColumn(0).setPreferredWidth(50);  // Código
-        table.getColumnModel().getColumn(1).setPreferredWidth(200); // Nombre Prestamo
+        table.getColumnModel().getColumn(1).setPreferredWidth(100); // Nombre Prestamo
         table.getColumnModel().getColumn(2).setPreferredWidth(100); // Autor
-        table.getColumnModel().getColumn(3).setPreferredWidth(150); // Editorial
-        table.getColumnModel().getColumn(4).setPreferredWidth(200); // Editorial
+        table.getColumnModel().getColumn(3).setPreferredWidth(200); // Editorial
+        table.getColumnModel().getColumn(4).setPreferredWidth(100); // Editorial
+        table.getColumnModel().getColumn(5).setPreferredWidth(50); // Editorial
 
 
         pnlTabla.removeAll();
@@ -226,35 +236,88 @@ public class PrestamoPanel extends JPanel implements ActionListener {
                     try {
                         prestamo = prestamoBL.getByIdPrestamo(idPrestamo);
                         showRow();
+
+                        int libroIndex = getIndex(NombreLibro, prestamo.getNombreLibro());
+                        if (libroIndex != -1) {
+                            cmbLibro.setSelectedIndex(libroIndex);
+                        }
+        
+                        int usuarioIndex = getIndex(NombreApellido, prestamo.getNombreUsuario() + " " + prestamo.getApellidoUsuario());
+                        if (usuarioIndex != -1) {
+                            cmbNombreApellido.setSelectedIndex(usuarioIndex);
+                        }
+
+                        int estadoIndex = getIndex(Estados, prestamo.getEstadoPrestamo());
+                        if (estadoIndex != -1) {
+                            cmbEstadoPrestamo.setSelectedIndex(estadoIndex);
+                        }
                     } catch (Exception ignored) {
                     }
                     System.out.println("Tabla.Selected: " + strIdPrestamo);
                 }
             }
         });
-
-        
     }
+
+    private void CargarEstados () throws Exception {
+        List<EstadoPrestamoDTO> prestamos = EstadoPrestamoBL.getAll(); 
+        Set<String> estadosUnicos = new HashSet<>(); 
+
+        for (EstadoPrestamoDTO prestamo : prestamos) {
+            estadosUnicos.add(prestamo.getNombre());
+        }
+        Estados = estadosUnicos.toArray(new String[0]); 
+        cmbEstadoPrestamo.removeAllItems();
+        for (String estado : Estados) {
+            cmbEstadoPrestamo.addItem(estado);
+        }
+    }
+    
+    private void CargarNombreApellido() throws Exception {
+        List<UsuarioDTO> nombres = UsuarioBL.getAll();
+        NombreApellido = new String[nombres.size()];
+    
+        for (int i = 0; i < nombres.size(); i++) {
+            NombreApellido[i] = nombres.get(i).getNombre() + " " + nombres.get(i).getApellido();
+        }
+    
+        cmbNombreApellido.removeAllItems();
+        for (String nombre : NombreApellido) {
+            cmbNombreApellido.addItem(nombre);
+        }
+    
+        cmbNombreApellido.setMaximumRowCount(20);
+    }
+
+    private void CargarLibro() throws Exception {
+        List<LibroDTO> libros = LibroBL.getAll();    
+        NombreLibro = new String[libros.size()];
+    
+        for (int i = 0; i < libros.size(); i++) {
+            NombreLibro[i] = libros.get(i).getNombreLibro();
+        }
+        cmbLibro.removeAllItems();
+        for (String nombre : NombreLibro) {
+            cmbLibro.addItem(nombre);
+        }
+        cmbLibro.setMaximumRowCount(20);
+    }
+    
 
 /************************
  * FormDesing : Grupo6
  ************************/ 
     private PatLabel 
             lblTitulo           = new PatLabel("PRESTAMO"),
-            lblIdPrestamo       = new PatLabel("Codigo           : "),
-            lblNombreUsuario    = new PatLabel("Nombre Usuario   : "),
-            lblApellidoUsuario  = new PatLabel("Apellido Usuario : "),
-            lblNombreLibro      = new PatLabel("Nombre Libro     : "),
-            lblEstadoPrestamo   = new PatLabel("Estado Prestamo  : "),
+            lblIdPrestamo       = new PatLabel("Codigo            : "),
+            lblNombreUsuario    = new PatLabel("Nombre Usuario    : "),
+            lblNombreLibro      = new PatLabel("Nombre Libro      : "),
+            lblEstadoPrestamo   = new PatLabel("Estado Prestamo   : "),
             lblTotalReg         = new PatLabel(" 0 de 0 "),
             lblTotalPag         = new PatLabel(" 0 ");
     private PatTextBox 
-            txtIdPrestamo        = new PatTextBox(),
-            txtNombreUsuario     = new PatTextBox(),
-            txtApellidoUsuario   = new PatTextBox(),
-            txtNombreLibro       = new PatTextBox(),
-            txtEstadoPrestamo    = new PatTextBox();
-
+            txtIdPrestamo       = new PatTextBox();
+    
     private PatButton 
             btnPageIni  = new PatButton(" |< "),
             btnPageAnt  = new PatButton(" << "),
@@ -279,15 +342,15 @@ public class PrestamoPanel extends JPanel implements ActionListener {
     private void customizeComponent() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-            
+        
+        txtIdPrestamo.setEditable(false);   
+        txtIdPrestamo.setDisabledTextColor(txtIdPrestamo.getForeground());
         txtIdPrestamo.setEnabled(false);
         txtIdPrestamo.setBorderLine();
-        txtNombreUsuario.setBorderLine();
-        txtApellidoUsuario.setBorderLine();
-        txtNombreLibro.setBorderLine();
-        txtEstadoPrestamo.setBorderLine();
-            
-        cmbEstadoPrestamo.setPreferredSize(new Dimension(200, 25)); // Ajustar tamaño si es necesario
+        
+        cmbEstadoPrestamo.setPreferredSize(new Dimension(200, 25)); 
+        cmbNombreApellido.setPreferredSize(new Dimension(200, 25)); 
+        cmbLibro.setPreferredSize(new Dimension(200, 25)); 
             
         pnlBtnPage.add(btnPageIni);
         pnlBtnPage.add(btnPageAnt);
@@ -356,12 +419,12 @@ public class PrestamoPanel extends JPanel implements ActionListener {
             
         gbc.gridy = 5;
         gbc.gridx = 0;
-        gbc.insets = new Insets(5, 0, 5, 0);
+        gbc.insets = new Insets(5, 0, 5, 0); 
         add(lblIdPrestamo, gbc);
         gbc.gridy = 5;
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridwidth = 1;
+        gbc.gridwidth = 1; 
         add(txtIdPrestamo, gbc);
             
         gbc.gridy = 6;
@@ -370,25 +433,19 @@ public class PrestamoPanel extends JPanel implements ActionListener {
         add(lblNombreUsuario, gbc);
         gbc.gridy = 6;
         gbc.gridx = 1;
-        add(txtNombreUsuario, gbc);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth = 1;
+        add(cmbNombreApellido, gbc);  
             
         gbc.gridy = 7;
         gbc.gridx = 0;
         gbc.insets = new Insets(5, 0, 5, 0);
-        add(lblApellidoUsuario, gbc);
+        add(lblNombreLibro, gbc);
         gbc.gridy = 7;
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 1;
-        add(txtApellidoUsuario, gbc);
-            
-        gbc.gridy = 8;
-        gbc.gridx = 0;
-        gbc.insets = new Insets(5, 0, 5, 0);
-        add(lblNombreLibro, gbc);
-        gbc.gridy = 8;
-        gbc.gridx = 1;
-        add(txtNombreLibro, gbc);
+        add(cmbLibro, gbc); 
             
         gbc.gridy = 9;
         gbc.gridx = 0;
@@ -396,12 +453,9 @@ public class PrestamoPanel extends JPanel implements ActionListener {
         add(lblEstadoPrestamo, gbc);
         gbc.gridy = 9;
         gbc.gridx = 1;
-        add(txtEstadoPrestamo, gbc);
-        gbc.gridy = 9;
-        gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridwidth = 1;
-        add(cmbEstadoPrestamo, gbc); 
+        add(cmbEstadoPrestamo, gbc);  
             
         gbc.gridy = 10;
         gbc.gridx = 0;

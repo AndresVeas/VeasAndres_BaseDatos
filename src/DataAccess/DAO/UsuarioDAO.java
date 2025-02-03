@@ -78,12 +78,13 @@ public class UsuarioDAO extends SQLiteDataHelper implements IDAO <UsuarioDTO> {
 
     @Override
     public boolean create(UsuarioDTO entity) throws Exception {
-        String query = " INSERT INTO Usuario (Nombre,Apellido) VALUES (?,?)";
+        String query = " INSERT INTO Usuario (Nombre,Apellido,Estado) VALUES (?,?,?)";
         try {
             Connection        conn  = openConnection();
             PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt.setString(1, entity.getNombre());
             pstmt.setString(2, entity.getApellido());
+            pstmt.setString(3, entity.getEstado());
             pstmt.executeUpdate();
             return true;
         } 
@@ -96,14 +97,15 @@ public class UsuarioDAO extends SQLiteDataHelper implements IDAO <UsuarioDTO> {
     public boolean update(UsuarioDTO entity) throws Exception {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");  
         LocalDateTime now = LocalDateTime.now();
-        String query = " UPDATE Usuario SET Nombre = ?,Apellido = ?, FechaModificacion = ? WHERE IdUsuario = ?";
+        String query = " UPDATE Usuario SET Nombre = ?,Apellido = ?, FechaModificacion = ? , Estado = ? WHERE IdUsuario = ?";
         try {
             Connection          conn = openConnection();
             PreparedStatement pstmt  = conn.prepareStatement(query);
             pstmt.setString(1, entity.getNombre());
             pstmt.setString(2, entity.getApellido());
             pstmt.setString(3, dtf.format(now).toString());
-            pstmt.setInt(4, entity.getIdUsuario());
+            pstmt.setString(4, entity.getEstado());
+            pstmt.setInt(5, entity.getIdUsuario());
             pstmt.executeUpdate();
             return true;
         } 
@@ -120,8 +122,7 @@ public class UsuarioDAO extends SQLiteDataHelper implements IDAO <UsuarioDTO> {
 
     
     public Integer getMaxRow()  throws Exception  {
-        String query =" SELECT COUNT(*) TotalReg FROM Usuario"
-                     +" WHERE   Estado ='A' ";
+        String query =" SELECT COUNT(*) TotalReg FROM Usuario";
         try {
             Connection conn = openConnection();         // conectar a DB     
             Statement  stmt = conn.createStatement();   // CRUD : select * ...    

@@ -92,7 +92,7 @@ public class EstadoPrestamoDAO extends SQLiteDataHelper implements IDAO <EstadoP
     public boolean update(EstadoPrestamoDTO entity) throws Exception {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");  
         LocalDateTime now = LocalDateTime.now();
-        String query = " UPDATE EstadoPrestamo SET Nombre = ?, FechaModifica = ? WHERE IdEstadoPrestamo = ?";
+        String query = " UPDATE EstadoPrestamo SET Nombre = ?, FechaModificacion = ? WHERE IdEstadoPrestamo = ?";
         try {
             Connection          conn = openConnection();
             PreparedStatement pstmt  = conn.prepareStatement(query);
@@ -110,6 +110,24 @@ public class EstadoPrestamoDAO extends SQLiteDataHelper implements IDAO <EstadoP
     @Override
     public boolean delete(Integer id) throws Exception {
             return true;
+    }
+
+    public Integer getMaxRow()  throws Exception  {
+
+
+        String query =" SELECT COUNT(*) TotalReg FROM EstadoPrestamo";
+        try {
+            Connection conn = openConnection();         // conectar a DB     
+            Statement  stmt = conn.createStatement();   // CRUD : select * ...    
+            ResultSet rs   = stmt.executeQuery(query);  // ejecutar la
+            while (rs.next()) {
+                return rs.getInt(1);                    // TotalReg
+            }
+        } 
+        catch (SQLException e) {
+            throw e; 
+        }
+        return 0;
     }
 
 }

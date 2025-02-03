@@ -14,6 +14,8 @@ VALUES
 ('Juan', 'Torres'),
 ('Ana', 'Saltos');
 
+UPDATE Usuario SET Estado = 'X' WHERE idUsuario = 1;
+
 INSERT INTO Libro (NombreLibro, NombreAutor, ApellidoAutor, Editorial)
 VALUES
 ('Cien Años de Soledad', 'Gabriel', 'García Márquez', 'Editorial Sudamericana'),
@@ -113,6 +115,7 @@ SELECT
     ,u.Apellido             AS "Apellido Usuario"
     ,l.NombreLibro          AS "Nombre del Libro"
     ,e.Nombre               AS "Estado de Prestamo"
+    ,p.FechaCreacion      
     ,p.FechaDevolucion      
 FROM Prestamo           AS p
 JOIN Usuario            AS u ON p.IdUsuario         = u.IdUsuario
@@ -122,3 +125,72 @@ JOIN EstadoPrestamo     AS e ON p.IdEstadoPrestamo  = e.IdEstadoPrestamo;
 SELECT * FROM ViewPrestamo;
 
 DROP VIEW ViewPrestamo;
+
+
+
+
+ SELECT IdLibro              
+       ,NombreLibro          
+       ,NombreAutor          
+       ,ApellidoAutor        
+       ,Editorial            
+       ,Estado               
+       ,FechaCreacion        
+       ,FechaModificacion    
+ FROM  Libro                 
+ WHERE IdLibro = 1;          
+
+ SELECT IdLibro              
+      ,NombreLibro          
+      ,NombreAutor          
+      ,ApellidoAutor        
+      ,Editorial            
+      ,Estado               
+      ,FechaCreacion        
+      ,FechaModificacion    
+FROM  Libro;  
+
+
+
+SELECT
+       p.IdPrestamo
+      ,p.IdUsuario
+      ,p.IdLibro
+      ,p.IdEstadoPrestamo
+      ,u.Nombre
+      ,u.Apellido
+      ,l.NombreLibro
+      ,e.Nombre
+      ,p.Estado
+      ,p.FechaCreacion
+      ,p.FechaDevolucion
+FROM Prestamo           AS p
+JOIN Usuario            AS u ON p.IdUsuario         = u.IdUsuario
+JOIN Libro              AS l ON p.IdLibro           = l.IdLibro
+JOIN EstadoPrestamo     AS e ON p.IdEstadoPrestamo  = e.IdEstadoPrestamo;
+
+
+CREATE VIEW pv AS
+SELECT
+       p.IdPrestamo
+      ,p.IdUsuario
+      ,p.IdLibro
+      ,p.IdEstadoPrestamo
+      ,u.Nombre
+      ,u.Apellido
+      ,l.NombreLibro
+      ,e.Nombre
+      ,p.Estado
+      ,p.FechaCreacion
+      ,p.FechaDevolucion
+FROM Prestamo AS p
+JOIN Usuario AS u ON p.IdUsuario = u.IdUsuario
+JOIN Libro AS l ON p.IdLibro = l.IdLibro
+JOIN EstadoPrestamo AS e ON p.IdEstadoPrestamo = e.IdEstadoPrestamo;
+DROP VIEW pv;
+
+SELECT * FROM pv WHERE IdUsuario = 1;
+
+INSERT INTO Prestamo (IdUsuario, IdLibro, IdEstadoPrestamo) VALUES (1, 2, 2);
+
+UPDATE Prestamo SET IdUsuario = ?, IdLibro = ?, IdEstadoPrestamo = ?, FechaDevolucion = datetime('now','localtime') WHERE IdPrestamo = ?;

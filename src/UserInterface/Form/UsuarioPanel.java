@@ -11,7 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.*;
 
 public class UsuarioPanel extends JPanel implements ActionListener {
@@ -19,10 +22,13 @@ public class UsuarioPanel extends JPanel implements ActionListener {
     private UsuarioDTO usuario = null;
     private UsuarioBL usuarioBL = null;
     private Integer cantidadPaginas = 0, paginaActual=0, filasPagina = 10;
-
+    private String [] Estados;
+    private JComboBox<String> cmbEstado = new JComboBox<>();
+    
     public UsuarioPanel () {
         try {
             customizeComponent();
+            CargarEstados();
             loadRow();
             showRow();
             showTable();
@@ -51,7 +57,8 @@ public class UsuarioPanel extends JPanel implements ActionListener {
         usuarioBL      = new UsuarioBL();
         usuario        = usuarioBL.getByIdUsuario(idUsuario);
         idMaxUsuario   = usuarioBL.getMaxRow();
-        cantidadPaginas = (int) Math.ceil((double) usuarioBL.getAll().size() / filasPagina);
+        cmbEstado.setSelectedIndex(loadEstado());
+        cantidadPaginas = (int) Math.ceil((double) UsuarioBL.getAll().size() / filasPagina);
     }
 
     private void showRow() {
@@ -59,35 +66,28 @@ public class UsuarioPanel extends JPanel implements ActionListener {
         txtIdUsuario.setText((usuarioNull) ? "" : usuario.getIdUsuario().toString());
         txtNombre.setText((usuarioNull) ?    "" : usuario.getNombre());
         txtApellido.setText((usuarioNull) ?  "" : usuario.getApellido());
-        txtEstado.setText((usuarioNull) ?    "" : usuario.getEstado());
-
+        cmbEstado.setVisible(true);
 
         lblTotalReg.setText(idUsuario.toString() + " de " + idMaxUsuario.toString());
     }
 
     private void btnNuevoClick() {
         usuario = null;
+        cmbEstado.setSelectedIndex(0);
         showRow();
     } 
     
     private void btnGuardarClick() {
         boolean usuarioNull = (usuario == null);
-        // String buttonText = ((JButton) e.getSource()).getText();
         try {
             if (IAStyle.showConfirmYesNo("¿Seguro que desea " + ((usuarioNull) ? "AGREGAR ?" : "ACTUALIZAR ?"))){
             
-                if (usuarioNull) {
-                    usuario = new UsuarioDTO();
-                    usuario.setNombre(txtNombre.getText());
-                    usuario.setApellido(txtApellido.getText());
-                    usuario.setEstado(txtEstado.getText());
-                }
-                else {
-                    usuario.setNombre(txtNombre.getText());
-                    usuario.setApellido(txtApellido.getText());
-                    usuario.setEstado(txtEstado.getText());
-                }
+                if (usuarioNull) usuario = new UsuarioDTO();
                     
+                usuario.setNombre(txtNombre.getText());
+                usuario.setApellido(txtApellido.getText());
+                usuario.setEstado(cmbEstado.getSelectedItem().toString());
+                
                 if(!((usuarioNull) ? usuarioBL.create(usuario) : usuarioBL.update(usuario)))
                     IAStyle.showMsgError("Error al guardar...!");
     
@@ -120,7 +120,7 @@ public class UsuarioPanel extends JPanel implements ActionListener {
         try {
             if(usuario == null)
                 loadRow();
-            showRow();
+                showRow();
         } catch (Exception e) {}
     }
 
@@ -144,7 +144,8 @@ public class UsuarioPanel extends JPanel implements ActionListener {
         if (e.getSource() == btnPageFin && cantidadPaginas > 0)
             paginaActual = cantidadPaginas - 1;
         try {
-            usuario = usuarioBL.getByIdUsuario(idUsuario);  
+            usuario = usuarioBL.getByIdUsuario(idUsuario);
+            cmbEstado.setSelectedIndex(loadEstado());
             showRow();
             showTable();
         } catch (Exception ex) {
@@ -154,8 +155,8 @@ public class UsuarioPanel extends JPanel implements ActionListener {
 
     private void showTable() throws Exception {
         lblTotalPag.setText((paginaActual + 1) + " de " + cantidadPaginas);
-
-        List<UsuarioDTO> allUsuario = usuarioBL.getAll();
+    
+        List<UsuarioDTO> allUsuario = UsuarioBL.getAll();
         String[] header = {"Id", "Nombre Usuario","Apellido Usuario","Estado"};
         Object[][] data = new Object[filasPagina][header.length];
         int index = 0, inicio = paginaActual * filasPagina, end = Math.min(inicio + filasPagina, allUsuario.size());
@@ -205,22 +206,42 @@ public class UsuarioPanel extends JPanel implements ActionListener {
         });
     }
 
+    private void CargarEstados () throws Exception {
+        List<UsuarioDTO> usuarios = UsuarioBL.getAll(); 
+        Set<String> estadosUnicos = new HashSet<>(); 
+        for (UsuarioDTO usuario : usuarios) {
+            estadosUnicos.add(usuario.getEstado()); 
+        }
+        Estados = estadosUnicos.toArray(new String[0]); 
+        cmbEstado.removeAllItems();
+        for (String estado : Estados) {
+            cmbEstado.addItem(estado);
+        }
+    }
+
+    private int loadEstado (){
+        for (int i = 0; i < Estados.length; i++) {
+            if (usuario.getEstado().equals(Estados[i])){
+                return i;
+            }
+        }
+        return 0;
+    }
 /************************
  * FormDesing : Grupo6
  ************************/ 
     private PatLabel 
             lblTitulo      = new PatLabel("USUARIOS"),
-            lblIdUsuario   = new PatLabel("Codigo         : "),
+            lblIdUsuario   = new PatLabel("Codigo : "),
             lblNombre      = new PatLabel("Nombre Usuario : "),
             lblApellido    = new PatLabel("Apellido Usuario : "),
-            lblEstado      = new PatLabel("Estado  : "),
+            lblEstado      = new PatLabel("Estado : "),
             lblTotalReg    = new PatLabel(" 0 de 0 "),
             lblTotalPag    = new PatLabel(" 0 ");
     private PatTextBox 
             txtIdUsuario   = new PatTextBox(),
             txtNombre      = new PatTextBox(),
-            txtApellido    = new PatTextBox(),
-            txtEstado      = new PatTextBox();
+            txtApellido    = new PatTextBox();
 
     private PatButton 
             btnPageIni  = new PatButton(" |< "),
@@ -247,11 +268,14 @@ public class UsuarioPanel extends JPanel implements ActionListener {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         
+        txtIdUsuario.setEditable(false);   
+        txtIdUsuario.setDisabledTextColor(txtIdUsuario.getForeground());
         txtIdUsuario.setEnabled(false);
         txtIdUsuario.setBorderLine();
         txtNombre.setBorderLine();   
-        txtApellido.setBorderLine(); 
-        txtEstado.setBorderLine();   
+        txtApellido.setBorderLine();   
+
+        cmbEstado.setPreferredSize(new Dimension(200, 25));
         
         pnlBtnPage.add(btnPageIni);
         pnlBtnPage.add(btnPageAnt);
@@ -349,11 +373,14 @@ public class UsuarioPanel extends JPanel implements ActionListener {
 
         gbc.gridy = 8;
         gbc.gridx = 0;
-        gbc.insets = new Insets(5, 0, 5, 0); 
+        gbc.insets = new Insets(5, 0, 5, 0);
         add(lblEstado, gbc);
+
         gbc.gridy = 8;
         gbc.gridx = 1;
-        add(txtEstado, gbc);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth = 1;
+        add(cmbEstado, gbc); 
 
         gbc.gridy = 10;
         gbc.gridx = 0;

@@ -13,17 +13,16 @@ import UserInterface.Form.SplashScreenForm;
 
 public class App {
     public static void main(String[] args) throws Exception {
-
-         FlatLightLaf.setup();
+         
+        FlatLightLaf.setup();
         FlatLightLaf.supportsNativeWindowDecorations();
         try {
-            UIManager.setLookAndFeel(new FlatMaterialLighterContrastIJTheme());
+        UIManager.setLookAndFeel(new FlatMaterialLighterContrastIJTheme());
         } catch (Exception e) {
-            e.printStackTrace();
+        e.printStackTrace();
         }
-       //SplashScreenForm.show();
-       MainForm frmMain = new MainForm("PoliBiblio -------GRUPO 6");
-       frmMain.setVisible(true); 
-    } 
-
+        //SplashScreenForm.show();
+        MainForm frmMain = new MainForm("PoliBiblio -------GRUPO 6");
+        frmMain.setVisible(true);
+    }
 }

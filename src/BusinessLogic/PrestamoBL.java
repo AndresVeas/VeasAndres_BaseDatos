@@ -6,11 +6,11 @@ import java.util.List;
 
 public class PrestamoBL {
     private PrestamoDTO prestamo;       // cache
-    private PrestamoDAO pDAO = new PrestamoDAO();
+    private static PrestamoDAO pDAO = new PrestamoDAO();
 
     public PrestamoBL(){}
 
-    public List<PrestamoDTO> getAll() throws Exception{
+    public static List<PrestamoDTO> getAll() throws Exception{
         return pDAO.readAll();
     }
     public PrestamoDTO getByIdPrestamo(int idPrestamo) throws Exception{

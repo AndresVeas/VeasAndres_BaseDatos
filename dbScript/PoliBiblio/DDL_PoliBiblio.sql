@@ -24,10 +24,10 @@ CREATE TABLE Usuario(
 
 CREATE TABLE Libro( 
      IdLibro                INTEGER PRIMARY KEY AUTOINCREMENT
-    ,NombreLibro            TEXT    NOT NULL
-    ,NombreAutor            TEXT    NOT NULL
-    ,ApellidoAutor          TEXT    NOT NULL
-    ,Editorial              TEXT    NOT NULL
+    ,NombreLibro            TEXT        NOT NULL UNIQUE 
+    ,NombreAutor            TEXT        NOT NULL
+    ,ApellidoAutor          TEXT        NOT NULL
+    ,Editorial              TEXT        NOT NULL
     ,Estado                 TEXT        NOT NULL DEFAULT ('A')
     ,FechaCreacion          DATETIME    NOT NULL DEFAULT (datetime('now','localtime'))
     ,FechaModificacion      DATETIME 
